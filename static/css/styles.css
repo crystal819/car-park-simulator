@@ -1,0 +1,308 @@
+#validFromRegion {
+    position:fixed;
+    top:8%;
+    right:4%;
+    width:200px;
+    height:200px;
+}
+
+#validUntilRegion {
+    position:fixed;
+    top:45%;
+    right:4%;
+    width:200px;
+    height:200px;
+}
+
+
+.flatpickr-calendar {
+  transform: scale(0.8);
+  transform-origin: top left;
+}
+
+.fixed-btn{
+    height: 50px;
+    width: 105px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.search-btn{
+    height: 70px;
+    width: 120px;
+    font-size: 20px;
+    border-width: 2px;
+}
+
+.btn-search:active {
+    transform: scale(0.97);
+}
+
+.blue{
+    background-color: #044192;
+}
+
+.gold{
+    background-color: #E8A614;
+}
+
+.bright-gold{
+    background-color: #FFCC00;
+}
+
+.dull-gold{
+    background-color: #CAA400;
+}
+
+.outline-gold{
+    outline: 2px solid #B37800;
+    border-radius: 5px;
+}
+
+.button-gold{
+    color: black;
+    font-weight: 500;
+}
+
+
+
+
+
+/* for filter buttons */
+.btn-filter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0.375rem 0.75rem;
+  font-size: 1rem;
+  font-weight: 500;
+
+  border-radius: 0.375rem;
+  border: 2px solid #B37800;
+  background-color: transparent;
+  color: black;
+
+  cursor: pointer;
+  user-select: none;
+
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.05s ease;
+}
+
+.btn-filter:hover {
+  background-color: gold;
+}
+
+.btn-filter:active {
+  transform: scale(0.97);
+}
+
+.btn-filter:focus {
+  outline: none;
+}
+
+.btn-filter.active { /*when the filter is set to on */
+    background-color: #c5a202;
+}
+
+.btn-filter.active:hover { /* when the button is set to on and the mouse if hovering */
+    background-color: #e9bc07;
+}
+
+
+.btn-date {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0.3rem 0.7rem;
+  font-size: 1rem;
+  font-weight: 500;
+
+  border-radius: 0.375rem;
+  border: 2px solid #B37800;
+  background-color: transparent;
+  color: black;
+
+  cursor: pointer;
+  user-select: none;
+
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.05s ease;
+}
+
+.btn-date:active {
+    transform: scale(0.97);
+}
+
+.btn-date:hover {
+    background-color: gold;
+}
+
+
+#reset_photo1 {
+    width: 90%;
+    height: auto;
+}
+
+#reset_btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+
+  border-radius: 0.375rem;
+  background-color: transparent;
+  border-color: transparent;
+
+  cursor: pointer;
+  user-select: none;
+
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.05s ease;
+
+  margin-left: 10px;
+  width: 50px;
+  height: 50px;
+}
+
+#reset_btn:hover {
+  background-color: #f3c200;
+}
+
+#reset_btn:active {
+  transform: scale(0.97);
+}
+
+
+.btn-permit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0.375rem 0.75rem;
+  font-size: 1rem;
+  font-weight: 500;
+
+  border-radius: 0.375rem;
+  border: 2px solid #B37800;
+  background-color: transparent;
+  color: black;
+
+  cursor: pointer;
+  user-select: none;
+
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.05s ease;
+}
+
+.btn-permit.neutral {
+  background-color: #FFCC00;
+}
+
+.btn-permit.neutral:hover {
+    background-color: gold;
+}
+
+.btn-permit.neutral:active {
+    transform: scale(0.97);
+}
+
+
+.btn-permit.active {
+    background-color: #c5a202;
+    font-size: 0.96rem;
+}
+
+.btn-permit.active:hover {
+    background-color: #e9bc07;
+}
+
+.btn-permit.active:active {
+    transform: scale(0.97);
+}
+
+
+.btn-permit.inactive {
+    background-color: #a78800;
+}
+
+.btn-permit.inactive:hover {
+    background-color: #cda806;
+}
+
+.btn-permit.inactive:active {
+    transform: scale(0.97);
+}
+
+
+
+
+
+
+
+tr.results-row:hover > td {
+    background-color: #c3cfe1 !important;
+}
+
+tr.selected-row > td {
+    background-color: #6ca2ed !important;
+}
+
+tr.selected-row:hover > td {
+    background-color:  #508bda !important;
+}
+
+#menu_btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+
+  border-radius: 0.375rem;
+  background-color: transparent;
+  border-color: transparent;
+
+  cursor: pointer;
+  user-select: none;
+
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.05s ease;
+
+  width: 40px;
+  height: 40px;
+  margin-left: 10px;
+}
+
+#menu_btn:hover {
+    background-color: #062a5a;
+}
+
+#menu_btn:active {
+    transform: scale(0.97);
+}
+
+#menu_btn_img {
+    background-color: transparent;
+    max-height: 40px;
+    width: auto;
+}
+

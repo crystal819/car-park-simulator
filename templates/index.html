@@ -1,0 +1,364 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div id="validFromRegion" class="d-none">
+    <h3>Valid From</h3>
+    <input id="datePickerFrom">
+</div>
+<div id="validUntilRegion" class="d-none">
+    <h3>Valid Until</h3>
+    <input id="datePickerUntil">
+</div>
+
+<div class="row">
+    <div class="d-flex justify-content-center " style="padding-bottom: 20px;">
+        <h1 style="color: #5f4105;" >Collyers Car Park</h1>
+    </div>
+</div>
+
+<div class="row">
+
+    <!--input fields-->
+    <div class="col-md-4">
+        <form class="mb-2">
+            {% for label in ['Name', 'Registration', 'Make', 'Model'] %}
+            <div class="row mb-2">
+                <label class="col-5 col-form-label fw-bold outline-gold">{{ label }}</label>
+                <div class="col-7"><input class="form-control outline-gold" type="text" id="{{ label }}" name="{{ label }}" placeholder=""></div>
+            </div>
+            {% endfor %}
+        </form>
+    </div>
+
+    <!--search btn-->
+    <div class="col-md-2 d-flex justify-content-center align-items-center">
+        <button id="search-btn" class="btn btn-outline-primary search-btn btn-search">Search</button>
+    </div>
+
+    <!--car photo-->
+    <div class="col-md-3 d-flex justify-content-center align-items-center">
+        <img id="car_photo" src="{{ url_for('static', filename=car_photo) }}" class="img-fluid rounder shadow">
+    </div>
+
+    <!--person photo-->
+    <div class="col-md-3 d-flex justify-content-center align-items-center">
+        <img id="user_photo" src="{{ url_for('static', filename=user_photo) }}" class="img-fluid rounder shadow">
+    </div>
+
+</div>
+
+
+<div style="margin-top: 50px;"></div>
+
+
+
+<div class="d-flex">
+
+    <!--data table-->
+    <div class="w-75" style="max-height: 520px; overflow-y: auto;">
+        <table id="data_table" class="table table-bordered table-striped mt-3 text-center">
+            <thead style="position: sticky; top: 0;"> <!-- keeps the field names always at the top of the scrollable table -->
+                <tr>
+                {% for field in search_fields %}
+                    <th>{{ field }}</th>
+                {% endfor %}
+                </tr>
+            </thead>
+            <tbody id="data_table_body">
+                <!-- table is generated dynamically upon clicking the search button so this is empty -->
+            </tbody>
+        </table>
+    </div>
+
+
+    <!--filters-->
+    <div class="w-25 d-flex justify-content-center align-items-center">
+
+        <div class="row align-self-start">
+            <div class="col-md-12 d-flex justify-content-center align-items-center mb-2">
+                <h1 class="text-center outline-gold">Filters</h1>
+                <button id="reset_btn">
+                    <img id="reset_photo1" src="{{ url_for('static', filename='img/reset_photo1.png') }}" > <!-- reset button -->
+                </button>
+            </div>
+                
+            <!--staff & permit btn-->
+            <div class="col-md-12 d-flex justify-content-center align-items-center mb-2">
+                <div class="row">
+                    <div class="col-md-6 d-flex justify-content-center align-items-center mb-2">
+                        <button id="staff-btn" class="fixed-btn btn-filter" data-state="off">Staff</button>
+                    </div>
+                    <div class="col-md-6 d-flex justify-content-center align-items-center mb-2"> 
+                        <button id="permit-btn"  class="fixed-btn btn-permit neutral" data-state="neutral">Permit</button>
+                    </div>
+                </div>
+            </div>
+            <!--student & Valid From btn-->
+            <div class="col-md-12 d-flex justify-content-center align-items-center mb-2">
+                <div class="row">
+                    <div class="col-md-6 d-flex justify-content-center align-items-center mb-2">
+                        <button id="student-btn"  class="fixed-btn btn-filter" data-state="off">Student</button>
+                    </div>
+                    <div class="col-md-6 d-flex justify-content-center align-items-center mb-2">
+                        <button id="valid_from_BTN" class="btn-date fixed-btn">Valid From</button>
+                    </div>
+                </div>
+            </div>
+            <!--Visitor & Valid Until btn-->
+            <div class="col-md-12 d-flex justify-content-center align-items-center mb-2">
+                <div class="row">
+                    <div class="col-md-6 d-flex justify-content-center align-items-center mb-2">
+                        <button id="visitor-btn"  class="fixed-btn btn-filter" data-state="off">Visitor</button>
+                    </div>
+                    <div class="col-md-6 d-flex justify-content-center align-items-center mb-2">
+                        <button id="valid_until_BTN" class="btn-date fixed-btn">Valid Until</button>
+                    </div>
+                </div>
+            </div>
+
+            
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<script>
+//for the Valid_from button
+flatpickr("#datePickerFrom", {
+    dateFormat: "d/m/Y",
+    defaultDate: "today",
+    inline:true,
+    
+    onChange: function(selectedDates, dateStr, instance) {
+        document.getElementById("valid_from_BTN").textContent = dateStr;
+    }
+});
+document.getElementById("valid_from_BTN").addEventListener("click", () => {
+document.getElementById("validFromRegion").classList.toggle("d-none");
+document.getElementById("valid_from_BTN").textContent = 'Valid From';
+});
+
+//for the Valid_until button
+flatpickr("#datePickerUntil", {
+    dateFormat: "d/m/Y",
+    defaultDate: "today",
+    inline:true,
+
+    onChange: function(selectedDates, dateStr, instance) {
+        document.getElementById("valid_until_BTN").textContent = dateStr;
+    }
+});
+document.getElementById("valid_until_BTN").addEventListener("click", () => {
+document.getElementById("validUntilRegion").classList.toggle("d-none");
+document.getElementById("valid_until_BTN").textContent = 'Valid Until';
+});
+
+
+
+
+
+//for staff, student, visitor and permit boolean filters
+const btnStaff = document.getElementById("staff-btn")
+btnStaff.addEventListener("click", () => {
+    if (btnStaff.dataset.state === 'off') {
+        btnStaff.dataset.state = 'on'
+        btnStaff.classList.toggle('active')
+    } else {
+        btnStaff.dataset.state = 'off'
+        btnStaff.classList.toggle('active')
+    }
+    console.log(btnStaff.dataset.state)
+});
+
+const btnVisitor = document.getElementById("visitor-btn")
+btnVisitor.addEventListener("click", () => {
+    if (btnVisitor.dataset.state === 'off') {
+        btnVisitor.dataset.state = 'on'
+        btnVisitor.classList.toggle('active')
+    } else {
+        btnVisitor.dataset.state = 'off'
+        btnVisitor.classList.toggle('active')
+    }
+    console.log(btnVisitor.dataset.state)
+});
+
+const btnStudent = document.getElementById("student-btn")
+btnStudent.addEventListener("click", () => {
+    if (btnStudent.dataset.state === 'off') {
+        btnStudent.dataset.state = 'on'
+        btnStudent.classList.toggle('active')
+    } else {
+        btnStudent.dataset.state = 'off'
+        btnStudent.classList.toggle('active')
+    }
+    console.log(btnStudent.dataset.state)
+});
+
+const btnPermit = document.getElementById("permit-btn")
+btnPermit.addEventListener("click", () => {
+    if (btnPermit.dataset.state === 'neutral') {
+        btnPermit.dataset.state = 'active'
+        btnPermit.classList.toggle('active')
+        btnPermit.classList.toggle('neutral')
+        btnPermit.textContent = 'Has permit'
+    } else if (btnPermit.dataset.state === 'active') {
+        btnPermit.dataset.state = 'inactive'
+        btnPermit.classList.toggle('inactive')
+        btnPermit.classList.toggle('active')
+        btnPermit.textContent = 'No permit'
+    } else {
+        btnPermit.dataset.state = 'neutral'
+        btnPermit.classList.toggle('neutral')
+        btnPermit.classList.toggle('inactive')
+        btnPermit.textContent = 'Permit'
+    }
+    console.log(btnPermit.dataset.state)
+});
+
+document.getElementById("reset_btn").addEventListener("click", () => {
+    btnStaff.dataset.state = 'off'
+    btnStudent.dataset.state = 'off'
+    btnVisitor.dataset.state = 'off'
+    btnPermit.dataset.state = 'off'
+
+    btnStaff.className = 'fixed-btn btn-filter'
+    btnStudent.className = 'fixed-btn btn-filter'
+    btnVisitor.className = 'fixed-btn btn-filter'
+    btnPermit.className = 'fixed-btn btn-permit neutral'
+
+    document.getElementById("valid_from_BTN").textContent = 'Valid From'
+    document.getElementById("valid_until_BTN").textContent = 'Valid Until'
+    document.getElementById("validFromRegion").className = 'd-none'
+    document.getElementById("validUntilRegion").className = 'd-none'
+})
+
+
+
+
+//for search button for filters
+let old_data = [] //global scoped variable to remember how many rows the previous data reuqest had to know how many rows to delete
+document.getElementById("search-btn").addEventListener("click", () => {
+    const from_val = document.getElementById("valid_from_BTN").textContent;
+    const until_val = document.getElementById("valid_until_BTN").textContent;
+    const staff = document.getElementById("staff-btn").dataset.state;
+    const student = document.getElementById("student-btn").dataset.state;
+    const visitor = document.getElementById("visitor-btn").dataset.state;
+    const permit = document.getElementById("permit-btn").dataset.state;
+    const name = document.getElementById("Name").value;
+    const reg = document.getElementById("Registration").value;
+    const make = document.getElementById("Make").value;
+    const model = document.getElementById("Model").value;
+
+    fetch("/filter-data", { /* this sends the requested data to python for sql processing */
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({  "from": from_val,
+                                "until": until_val,
+                                "staff": staff,
+                                "student": student,
+                                "visitor": visitor,
+                                "permit": permit,
+                                "name": name,
+                                "reg": reg,
+                                "make": make,
+                                "model": model
+        },)
+    })
+    .then(res => res.json())
+    .then(data => { /* this only runs once the data has been sent back from python */
+        //print(data)
+        delete_table_rows(old_data)
+        
+        insert_table_rows(data)
+
+        captureRowSelected(data)
+    })
+
+})
+
+const tbody = document.getElementById("data_table_body")
+function insert_table_rows(data) { /* This updates the table using js so no reloading is required */
+    if (data.length === 0) {
+        let row = tbody.insertRow()
+        let cell = row.insertCell() // creates a single cell and extends it for the whole row to display no data available
+        cell.colSpan = "9"
+        cell.textContent = 'No data available'
+        old_data = [1]
+    } else {
+        for (i = 0; i < data.length; i++) {
+            console.log("updating...")
+
+            let row = tbody.insertRow()
+            row.dataset.recordId = data[i].Id
+            row.classList.add('results-row')
+
+            row.insertCell().textContent = data[i].first_name
+            row.insertCell().textContent = data[i].last_name
+            row.insertCell().textContent = data[i].age
+            row.insertCell().textContent = data[i].number_plate
+            row.insertCell().textContent = data[i].colour
+            row.insertCell().textContent = data[i].permit
+            row.insertCell().textContent = data[i].usertype
+            row.insertCell().textContent = data[i].valid_from
+            row.insertCell().textContent = data[i].valid_until
+            old_data = data
+        }
+    }
+}
+
+function delete_table_rows(data) { /* this deletes all the rows in the table but may be unstable because its using the previous data to know how many rows there are */
+    for ( i = data.length-1; i > -1; i--) {
+        console.log("deleting...")
+        document.getElementById('data_table_body').deleteRow(i)
+    }
+}
+
+
+//----------------------------to click on a row to select that record to display their photos----------------------
+
+function captureRowSelected(data) {
+    tbody.addEventListener('click', (e) => {
+        const row = e.target.closest("tr"); //finds which row you clicked on
+        if (!row) return; //ensures the user clicked on a row and not something else in the table like the headings
+
+        const recordId = row.dataset.recordId;
+        selectRow(row);
+        displayPhotos(recordId, data);
+    });
+}
+
+function selectRow(row) {
+    document.querySelectorAll("#data_table_body tr.selected-row").forEach(roww => roww.classList.remove("selected-row")) //removes the selected-row class from any rows with it
+
+    row.classList.add("selected-row") 
+}
+
+function displayPhotos(recordId, data) {
+    console.log('displaying photos for', recordId);
+    const userPhoto = document.getElementById("user_photo")
+    const carPhoto = document.getElementById("car_photo")
+
+    if (data.carPhoto === undefined) { //checks if there is a photo provided, if not then displays the basic no image found photo
+        console.log("No photo for car")
+        carPhoto.src = '/static/img/no_image_found.jpg'
+    } else {
+        carPhoto.src = data.carPhoto
+    }
+
+    if (data.userPhoto === undefined) {
+        console.log("no photo for the user was found")
+        userPhoto.src = '/static/img/no_image_found.jpg'
+    } else {
+        userPhoto.src = data.userPhoto
+    }
+
+}
+
+
+
+</script>
+
+{% endblock %}

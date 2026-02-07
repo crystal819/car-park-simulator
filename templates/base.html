@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Collyers Car Park</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    </head>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <!--<script src="js/main.js"></script>-->
+    <body class="bright-gold">
+        <nav class="navbar navbar-dark blue mb-4">
+            <button id="menu_btn"><a id="menu_btn_link" href="" data-page="{{ page_url }}"><img id="menu_btn_img" src="/static/img/menu_btn_img1.png"></a></button>
+            <div class="container d-flex"><span class="navbar-brand"><img src="/static/img/collyers_photo.jpg"></span></div>
+        </nav>
+        <main class="container">{% block content %}{% endblock %}</main>
+    </body>
+</html>
+
+
+<script>
+    document.getElementById("menu_btn").addEventListener("click", () => {
+        const menuLink = document.getElementById("menu_btn_link")
+        if (menuLink.dataset.page === 'index') {
+            menuLink.href = "{{ url_for('add_records') }}"
+            menuLink.dataset.page = "add_records"
+            console.log('2', menuLink.href, menuLink.dataset.page)
+        } else if (menuLink.dataset.page === 'add_records') {
+            menuLink.href = "{{ url_for('index') }}"
+            menuLink.dataset.page = "index"
+            console.log('1', menuLink.href, menuLink.dataset.page)
+        }
+    })
+
+
+</script>
