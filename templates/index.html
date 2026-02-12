@@ -262,6 +262,13 @@ document.getElementById("reset_btn").addEventListener("click", () => {
     document.getElementById("valid_until_BTN").textContent = 'Valid Until'
     document.getElementById("validFromRegion").className = 'd-none'
     document.getElementById("validUntilRegion").className = 'd-none'
+
+    {% for i in range(search_fields|length) %}
+        document.getElementById("{{ search_fields[i]+'header' }}").classList.remove('asc')
+        document.getElementById("{{ search_fields[i]+'header' }}").classList.remove('desc')
+        document.getElementById("{{ search_fields[i]+'header' }}").classList.remove('none')
+        document.getElementById("{{ search_fields[i]+'header' }}").classList.add('none')
+    {% endfor %}
 })
 
 
@@ -367,10 +374,11 @@ function captureRowSelected(data) {
 
 //----------------------to allow the user to order the data--------------------------------
 let selected = null
+
 {% for field in search_fields %} //jinja
 document.getElementById("{{ field+'header' }}").addEventListener('click', function() {
-    console.log(document.getElementById("{{ field+'header'}}").classList)
     selected = document.getElementById("{{ field+'header'}}")
+    selectedClassList = document.getElementById("{{ field+'header'}}").classList
     let prev_selected = null
 
     {% for i in range(search_fields|length) %}
@@ -378,28 +386,38 @@ document.getElementById("{{ field+'header' }}").addEventListener('click', functi
             prev_selected = [document.getElementById("{{ search_fields[i]+'header' }}"), 'desc']
         } else if (document.getElementById("{{ search_fields[i]+'header' }}").classList.contains("desc")) {
             prev_selected = [document.getElementById("{{ search_fields[i]+'header' }}"), 'none']
-        } else if (document.getElementById("{{ search_fields[i]+'header' }}").classList.contains("none")) {
-            prev_selected = [null, 'asc']
-        }
+        } 
         document.getElementById("{{ search_fields[i]+'header' }}").classList.remove('asc')
         document.getElementById("{{ search_fields[i]+'header' }}").classList.remove('desc')
         document.getElementById("{{ search_fields[i]+'header' }}").classList.remove('none')
+        document.getElementById("{{ search_fields[i]+'header' }}").classList.add('none')
     {% endfor %}
 
-    console.log(selected, selected.classList)
-    selected.classList.remove("none")
-    selected.classList.remove("asc")
-    selected.classList.remove("desc")
-    console.log(selected.classList, prev_selected.classList)
-    if (prev_selected[0] === selected) {
-        selected.classList.add(prev_selected[1])
-        console.log('same')
+    if (prev_selected != null) {
+        if (prev_selected[0] === selected) {
+            selected.classList.remove("none")
+            selected.classList.add(prev_selected[1])
+            displayRecords(['{{ field }}', prev_selected[1]]) //re-queries the database to display the records with the same filters ordered by the chosen field
+        } else {
+            if (selectedClassList.contains("none")) {
+                selected.classList.remove("none")
+                selected.classList.add("asc")
+                displayRecords(['{{ field }}', "asc"])
+            } else if (selectedClassList.contains("asc")) {
+                selected.classList.remove("none")
+                selected.classList.add("asc")
+                displayRecords(['{{ field }}', "desc"])
+            } else if (selectedClassList.contains("desc")) {
+                selected.classList.remove("none")
+                selected.classList.add("asc")
+                displayRecords(['{{ field }}', "none"])
+            }
+        }
     } else {
+        selected.classList.remove("none")
         selected.classList.add("asc")
-        console.log('different')
+        displayRecords(['{{ field }}', 'asc']) //re-queries the database to display the records with the same filters ordered by the chosen field
     }
-
-    displayRecords(['{{ field }}', prev_selected[1]]) //re-queries the database to display the records with the same filters ordered by the chosen field
 })
 {% endfor %}
 
