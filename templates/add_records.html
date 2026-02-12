@@ -1,25 +1,360 @@
-{% extends 'base.html' %}
+    {% extends 'base.html' %}
 {% block content %}
+
+<div id="validFromRegionAdd" class="d-none">
+    <h3>Valid From</h3>
+    <input id="datePickerFromAdd">
+</div>
+<div id="validUntilRegionAdd" class="d-none">
+    <h3>Valid Until</h3>
+    <input id="datePickerUntilAdd">
+</div>
+
+
 <div class="row">
     <div class="d-flex justify-content-center" style="padding-bottom: 20px;">
         <h1 style="color: #5f4105;">Add Data to Collyers Car Park</h1>
     </div>
 </div>
-
+<div class="mt-3"></div>
 <div class="row">
-    
-    <div class="col d-flex justify-content-center align-items-center">
-        hello
+    <!-- titles -->
+    <div class="row">
+        <div class="col-md-4 d-flex justify-content-center align-items-center">
+            <h2>Add User</h2>
+        </div>
+        <div class="col-md-4 d-flex justify-content-center align-items-center">
+            <h2>Add Car</h2>
+        </div>
+        <div class="col-md-4 d-flex justify-content-center align-items-center">
+            <h2>Add Permit</h2>
+        </div>
     </div>
 
+    <!-- add user -->
     <div class="col d-flex justify-content-center align-items-center">
-        hello
+        <div class="col">
+            <div class="row-md-2 d-flex justify-content-center align-items-center">
+                <div class="mt-5"></div> <!-- creates a gap here -->
+            </div>
+
+            <div class="row-md-4 d-flex justify-content-center align-items-center">
+                <div class="row">
+                    <form class="mb-5">
+                        {% for label in ['SYNumber', 'FirstName', 'LastName', 'Age'] %}
+                        <div class="row mb-2">
+                            <label class="col-5 col-form-label fw-bold outline-gold">{{ label }}</label>
+                            <div class="col-7">
+                                <input class="form-control outline-gold" type="text" id="{{ label }}" name="{{ label }}" placeholder="{% if label == 'LastName' %} {% else %} *required {% endif %}">
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </form>
+                    <div class="row mb-2">
+                        <label class="col-5 col-form-label fw-bold outline-gold"> User Type </label>
+                        <div class="col-7">
+                            <select id="userTypeOption" class="form-select outline-gold" style="width: 225px;">
+                                <option value="Student" selected>Student</option>
+                                <option value="Staff">Staff</option>
+                                <option value="Visitor">Visitor</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row-md-2 d-flex justify-content-center align-items-center">
+                <div class="mt-5"></div> <!-- creates a gap here too -->
+            </div>
+
+            <div class="row-md-2 d-flex justify-content-center align-items-center">
+                <button id="add_user_data_btn" class="btn btn-outline-primary search-btn btn-search">Submit</button>
+            </div>
+
+        </div>
     </div>
 
+    <!-- add car -->
     <div class="col d-flex justify-content-center align-items-center">
-        hello
+        <div class="col">
+            <div class="row-md-2 justify-content-center align-items-center">
+                <div class="mt-5"></div> 
+            </div>
+            <div class="row-md-4 d-flex justify-content-center align-items-center">
+                <div class="row">
+                    <form class="mb-2">
+                        {% for label in ['NumberPlate', 'Make', 'Model', 'Colour'] %}
+                        <div class="row mb-2">
+                            <label class="col-5 col-form-label fw-bold outline-gold">{{ label }}</label>
+                            <div class="col-7"><input class="form-control outline-gold" type="text" id="{{ label }}" name="{{ label }}" placeholder="*required"></div>
+                        </div>
+                        {% endfor %}
+                    </form>
+                </div>
+            </div>
+            <div class="row-md-2 d-flex justify-content-center align-items-center">
+                <div class="mt-5"></div> 
+            </div>
+            <div class="row-md-2 d-flex justify-content-center align-items-center">
+                <button id="add_car_data_btn" class="btn btn-outline-primary search-btn btn-search">Submit</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- add permit -->
+    <div class="col d-flex justify-content-center align-items-center">
+        <div class="col">
+            <div class="row-md-2 justify-content-center align-items-center">
+                <div class="mt-5"></div> 
+            </div>
+            <div class="row-md-4 d-flex justify-content-center align-items-center">
+                <div class="row">
+                    <form class="mb-5">
+                        {% for label in ['SYNumber', 'NumberPlate'] %}
+                        <div class="row mb-2">
+                            <label class="col-5 col-form-label fw-bold outline-gold">{{ label }}</label>
+                            <div class="col-7">
+                                <input class="form-control outline-gold" type="text" id="{{ label + 'Permit'}}" name="{{ label }}" placeholder="*required">
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </form>
+                    <div class="row mb-2">
+                        <label class="col-5 col-form-label fw-bold outline-gold"> Has Permit </label>
+                        <div class="col-7">
+                            <select id="hasPermitOption" class="form-select outline-gold" style="width: 225px;">
+                                <option value="Yes">Yes</option>
+                                <option value="No" selected>No</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row-md-2 d-flex justify-content-center align-items-center">
+                <div class="mt-5"></div> 
+            </div>
+            <div class="row-md-2 d-flex justify-content-center align-items-center">
+                <button id="add_permit_data_btn" class="btn btn-outline-primary search-btn btn-search">Submit</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-5"></div>
+    <div class="row">
+        <div class="col-4"></div>
+        <div class="col-4">
+            <div id="outputContainer" class="d-flex justify-content-center align-items-center d-none" style="outline: 2px solid #B37800;">
+                <p id="output" style="white-space: pre-line;"></p>
+            </div>
+        </div>
+        <div class="col-4"></div>
     </div>
 </div>
 
+
+<script>
+//for date selection
+const datePickerFromObjAdd = flatpickr("#datePickerFromAdd", {
+    dateFormat: "d/m/Y",
+    inline:true,
+    
+    onChange: function(selectedDates, dateStr, instance) {
+        datePickerUntilObjAdd.set("minDate", dateStr);
+    }
+});
+
+const datePickerUntilObjAdd = flatpickr("#datePickerUntilAdd", {
+    dateFormat: "d/m/Y",
+    inline:true,
+
+    onChange: function(selectedDates, dateStr, instance) {
+        datePickerFromObjAdd.set("maxDate", dateStr);
+    }
+});
+
+
+//for the hasPermit option selector
+const permitOption = document.getElementById("hasPermitOption")
+permitOption.addEventListener("change", function() {
+    if (permitOption.value === 'Yes') {
+        console.log("Hello")
+        document.getElementById("validFromRegionAdd").className = ''
+        document.getElementById("validUntilRegionAdd").className = ''
+    }
+    else {
+        document.getElementById("validFromRegionAdd").className = 'd-none'
+        document.getElementById("validUntilRegionAdd").className = 'd-none'
+    }
+})
+    
+//for adding data to the database and for the output dialog for each table
+const outputBox = document.getElementById("output")
+document.getElementById("add_user_data_btn").addEventListener("click", () => {
+    fetch("/validate-data", {   
+        method: 'POST',
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            'Data': 'User',
+            'SYNumber': document.getElementById("SYNumber").value,
+            'FirstName': document.getElementById("FirstName").value,
+            'LastName': document.getElementById("LastName").value,
+            'Age': document.getElementById("Age").value,
+            'UserType': document.getElementById("userTypeOption").value
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        let outputMessage = ''
+        if (data['isSuccessful'] === false) { 
+            let counter = 1
+            outputMessage = 'Errors:' //creates an error string to be put in the output dialog
+            if (data['SYNumber'].length > 0) {
+                for (let i = 0; i < data['SYNumber'].length; i++) {
+                    outputMessage += `\n${counter}) ${data['SYNumber'][i]}`
+                    counter ++
+                }
+            }
+            if (data['FirstName'].length > 0) {
+                for (let i = 0; i < data['FirstName'].length; i++) {
+                    outputMessage += `\n${counter}) ${data['FirstName'][i]}`
+                    counter ++
+                }
+            }
+            if (data['LastName'].length > 0) {
+                for (let i = 0; i < data['LastName'].length; i++) {
+                    outputMessage += `\n${counter}) ${data['LastName'][i]}`
+                    counter ++
+                }
+            }
+            if (data['Age'].length > 0) {
+                for (let i = 0; i < data['Age'].length; i++) {
+                    outputMessage += `\n${counter}) ${data['Age'][i]}`
+                    counter ++
+                }
+            }
+            if (data['UserType'].length > 0) {
+                for (let i = 0; i < data['UserType'].length; i++) {
+                    outputMessage += `\n${counter}) ${data['UserType'][i]}`
+                    counter ++
+                }
+            }
+        } else {
+            outputMessage = 'Successfully added the User to the database'
+        }
+        outputBox.textContent = outputMessage
+        document.getElementById("outputContainer").className = 'd-flex justify-content-center align-items-center'
+    })
+
+})
+
+document.getElementById("add_car_data_btn").addEventListener("click", () => {
+    fetch('/validate-data', {
+        method: 'POST',
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            'Data': 'Car',
+            'NumberPlate': document.getElementById("NumberPlate").value,
+            'Make': document.getElementById("Make").value,
+            'Model': document.getElementById("Model").value,
+            'Colour': document.getElementById("Colour").value
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        let outputMessage = ''
+        if (data['isSuccessful'] === false) { 
+            let counter = 1
+            outputMessage = 'Errors:' //creates an error string to be put in the output dialog
+            if (data['NumberPlate'].length > 0) {
+                for (let i = 0; i < data['NumberPlate'].length; i++) {
+                    outputMessage += `\n${counter}) ${data['NumberPlate'][i]}`
+                    counter ++
+                }
+            }
+            if (data['Make'].length > 0) {
+                for (let i = 0; i < data['Make'].length; i++) {
+                    outputMessage += `\n${counter}) ${data['Make'][i]}`
+                    counter ++
+                }
+            }
+            if (data['Model'].length > 0) {
+                for (let i = 0; i < data['Model'].length; i++) {
+                    outputMessage += `\n${counter}) ${data['Model'][i]}`
+                    counter ++
+                }
+            }
+            if (data['Colour'].length > 0) {
+                for (let i = 0; i < data['Colour'].length; i++) {
+                    outputMessage += `\n${counter}) ${data['Colour'][i]}`
+                    counter ++
+                }
+            }
+        } else {
+            outputMessage = 'Successfully added the Car to the database'
+        }
+        outputBox.textContent = outputMessage
+        document.getElementById("outputContainer").className = 'd-flex justify-content-center align-items-center'
+    })
+})
+
+document.getElementById("add_permit_data_btn").addEventListener("click", () => {
+    fetch('/validate-data', {
+        method: 'POST',
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            'Data': 'Permit',
+            'SYNumber': document.getElementById("SYNumberPermit").value,
+            'NumberPlate': document.getElementById("NumberPlatePermit").value,
+            'HasPermit': permitOption.value,
+            'ValidFrom': document.getElementById("datePickerFromAdd").value,
+            'ValidUntil': document.getElementById("datePickerUntilAdd").value
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        let outputMessage = ''
+        if (data['isSuccessful'] === false) { 
+            let counter = 1
+            outputMessage = 'Errors:' //creates an error string to be put in the output dialog
+            if (data['SYNumber'].length > 0) {
+                for (let i = 0; i < data['SYNumber'].length; i++) {
+                    outputMessage += `\n${counter}) ${data['SYNumber'][i]}`
+                    counter ++
+                }
+            }
+            if (data['NumberPlate'].length > 0) {
+                for (let i = 0; i < data['NumberPlate'].length; i++) {
+                    outputMessage += `\n${counter}) ${data['NumberPlate'][i]}`
+                    counter ++
+                }
+            }
+            if (data['HasPermit'].length > 0) {
+                for (let i = 0; i < data['HasPermit'].length; i++) {
+                    outputMessage += `\n${counter}) ${data['HasPermit'][i]}`
+                    counter ++
+                }
+            }
+            if (data['ValidFrom'].length > 0) {
+                for (let i = 0; i < data['ValidFrom'].length; i++) {
+                    outputMessage += `\n${counter}) ${data['ValidFrom'][i]}`
+                    counter ++
+                }
+            }
+            if (data['ValidUntil'].length > 0) {
+                for (let i = 0; i < data['ValidUntil'].length; i++) {
+                    outputMessage += `\n${counter}) ${data['ValidUntil'][i]}`
+                    counter ++
+                }
+            }
+        } else {
+            outputMessage = 'Successfully added the Permit to the database'
+        }
+        outputBox.textContent = outputMessage
+        document.getElementById("outputContainer").className = 'd-flex justify-content-center align-items-center'
+    })
+})
+
+
+</script>
 
 {% endblock %}

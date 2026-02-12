@@ -55,12 +55,12 @@
 <div class="d-flex">
 
     <!--data table-->
-    <div class="w-75" style="max-height: 520px; overflow-y: auto;">
+    <div class="w-75" style="max-height: 500px; overflow-y: auto;">
         <table id="data_table" class="table table-bordered table-striped mt-3 text-center">
             <thead style="position: sticky; top: 0;"> <!-- keeps the field names always at the top of the scrollable table -->
                 <tr>
                 {% for field in search_fields %}
-                    <th>{{ field }}</th>
+                    <th id="{{ field+'header' }}" class="none">{{ field }}</th>
                 {% endfor %}
                 </tr>
             </thead>
@@ -78,7 +78,7 @@
             <div class="col-md-12 d-flex justify-content-center align-items-center mb-2">
                 <h1 class="text-center outline-gold">Filters</h1>
                 <button id="reset_btn">
-                    <img id="reset_photo1" src="{{ url_for('static', filename='img/reset_photo1.png') }}" > <!-- reset button -->
+                    <img id="reset_photo1" src="{{ url_for('static', filename='img/reset_photo.png') }}" > <!-- reset button -->
                 </button>
             </div>
                 
@@ -100,7 +100,7 @@
                         <button id="student-btn"  class="fixed-btn btn-filter" data-state="off">Student</button>
                     </div>
                     <div class="col-md-6 d-flex justify-content-center align-items-center mb-2">
-                        <button id="valid_from_BTN" class="btn-date fixed-btn">Valid From</button>
+                        <button id="valid_from_BTN" class="btn-filter fixed-btn">Valid From</button>
                     </div>
                 </div>
             </div>
@@ -111,7 +111,7 @@
                         <button id="visitor-btn"  class="fixed-btn btn-filter" data-state="off">Visitor</button>
                     </div>
                     <div class="col-md-6 d-flex justify-content-center align-items-center mb-2">
-                        <button id="valid_until_BTN" class="btn-date fixed-btn">Valid Until</button>
+                        <button id="valid_until_BTN" class="btn-filter fixed-btn">Valid Until</button>
                     </div>
                 </div>
             </div>
@@ -123,17 +123,41 @@
 
 </div>
 
+<!----------results table header hovering ----------->
+<style>
+    {% for field in search_fields %}
+    #{{field+'header'}}.none:hover {
+        background-color: #c3cfe1 !important;
+    }
+    #{{field+'header'}}.asc {
+        background-color: #6ca2ed;
+    }
+    #{{field+'header'}}.asc:hover {
+        background-color: #508bda;
+    }
+    #{{field+'header'}}.desc {
+        background-color: #3379d3;
+    }
+    #{{field+'header'}}.desc:hover {
+        background-color: #0f62ce;
+    }
+    {% endfor %}
+</style>
 
 
 <script>
 //for the Valid_from button
-flatpickr("#datePickerFrom", {
+const datePickerFromObj = flatpickr("#datePickerFrom", {
     dateFormat: "d/m/Y",
-    defaultDate: "today",
     inline:true,
     
     onChange: function(selectedDates, dateStr, instance) {
-        document.getElementById("valid_from_BTN").textContent = dateStr;
+        if (dateStr.length === 0) {
+            document.getElementById("valid_from_BTN").textContent = 'Valid From'
+        } else {
+            document.getElementById("valid_from_BTN").textContent = dateStr
+            datePickerUntilObj.set("minDate", dateStr)
+        }
     }
 });
 document.getElementById("valid_from_BTN").addEventListener("click", () => {
@@ -141,14 +165,18 @@ document.getElementById("validFromRegion").classList.toggle("d-none");
 document.getElementById("valid_from_BTN").textContent = 'Valid From';
 });
 
-//for the Valid_until button
-flatpickr("#datePickerUntil", {
+//for the Valid_until button 
+const datePickerUntilObj = flatpickr("#datePickerUntil", {
     dateFormat: "d/m/Y",
-    defaultDate: "today",
     inline:true,
 
     onChange: function(selectedDates, dateStr, instance) {
-        document.getElementById("valid_until_BTN").textContent = dateStr;
+        if (dateStr.length === 0) {
+            document.getElementById("valid_until_BTN").textContent = 'Valid Until'
+        } else {
+            document.getElementById("valid_until_BTN").textContent = dateStr
+            datePickerFromObj.set("maxDate", dateStr)
+        }
     }
 });
 document.getElementById("valid_until_BTN").addEventListener("click", () => {
@@ -170,7 +198,7 @@ btnStaff.addEventListener("click", () => {
         btnStaff.dataset.state = 'off'
         btnStaff.classList.toggle('active')
     }
-    console.log(btnStaff.dataset.state)
+    console.log(btnStaff.dataset.state, document.getElementById("datePickerFrom").value)
 });
 
 const btnVisitor = document.getElementById("visitor-btn")
@@ -218,6 +246,7 @@ btnPermit.addEventListener("click", () => {
     console.log(btnPermit.dataset.state)
 });
 
+//for the reset button
 document.getElementById("reset_btn").addEventListener("click", () => {
     btnStaff.dataset.state = 'off'
     btnStudent.dataset.state = 'off'
@@ -238,9 +267,9 @@ document.getElementById("reset_btn").addEventListener("click", () => {
 
 
 
-//for search button for filters
+//for search button for all filters and inputs
 let old_data = [] //global scoped variable to remember how many rows the previous data reuqest had to know how many rows to delete
-document.getElementById("search-btn").addEventListener("click", () => {
+function displayRecords (orderBy) {
     const from_val = document.getElementById("valid_from_BTN").textContent;
     const until_val = document.getElementById("valid_until_BTN").textContent;
     const staff = document.getElementById("staff-btn").dataset.state;
@@ -264,19 +293,23 @@ document.getElementById("search-btn").addEventListener("click", () => {
                                 "name": name,
                                 "reg": reg,
                                 "make": make,
-                                "model": model
-        },)
+                                "model": model,
+                                "order": orderBy
+        })
     })
     .then(res => res.json())
-    .then(data => { /* this only runs once the data has been sent back from python */
-        //print(data)
+    .then(data => { /* this only runs once the data has been sent back from python becasue it is asynchronous*/
+
         delete_table_rows(old_data)
         
         insert_table_rows(data)
 
         captureRowSelected(data)
     })
+}
 
+document.getElementById("search-btn").addEventListener("click", () => {
+    displayRecords(null)
 })
 
 const tbody = document.getElementById("data_table_body")
@@ -293,6 +326,8 @@ function insert_table_rows(data) { /* This updates the table using js so no relo
 
             let row = tbody.insertRow()
             row.dataset.recordId = data[i].Id
+            row.dataset.userPhoto = data[i].user_photo //embed the user and car photo in each row
+            row.dataset.carPhoto = data[i].car_photo
             row.classList.add('results-row')
 
             row.insertCell().textContent = data[i].first_name
@@ -321,38 +356,74 @@ function delete_table_rows(data) { /* this deletes all the rows in the table but
 
 function captureRowSelected(data) {
     tbody.addEventListener('click', (e) => {
-        const row = e.target.closest("tr"); //finds which row you clicked on
-        if (!row) return; //ensures the user clicked on a row and not something else in the table like the headings
-
-        const recordId = row.dataset.recordId;
-        selectRow(row);
-        displayPhotos(recordId, data);
-    });
+        const row = e.target.closest("tr") //finds which row you clicked on
+        if (!row) return //ensures the user clicked on a row and not something else in the table like the headings
+        
+        const recordId = row.dataset.recordId
+        selectRow(row)
+        displayPhotos(recordId, data, row)
+    })
 }
 
-function selectRow(row) {
-    document.querySelectorAll("#data_table_body tr.selected-row").forEach(roww => roww.classList.remove("selected-row")) //removes the selected-row class from any rows with it
+//----------------------to allow the user to order the data--------------------------------
+let selected = null
+{% for field in search_fields %} //jinja
+document.getElementById("{{ field+'header' }}").addEventListener('click', function() {
+    console.log(document.getElementById("{{ field+'header'}}").classList)
+    selected = document.getElementById("{{ field+'header'}}")
+    let prev_selected = null
 
-    row.classList.add("selected-row") 
+    {% for i in range(search_fields|length) %}
+        if (document.getElementById("{{ search_fields[i]+'header' }}").classList.contains("asc")) {
+            prev_selected = [document.getElementById("{{ search_fields[i]+'header' }}"), 'desc']
+        } else if (document.getElementById("{{ search_fields[i]+'header' }}").classList.contains("desc")) {
+            prev_selected = [document.getElementById("{{ search_fields[i]+'header' }}"), 'none']
+        } else if (document.getElementById("{{ search_fields[i]+'header' }}").classList.contains("none")) {
+            prev_selected = [null, 'asc']
+        }
+        document.getElementById("{{ search_fields[i]+'header' }}").classList.remove('asc')
+        document.getElementById("{{ search_fields[i]+'header' }}").classList.remove('desc')
+        document.getElementById("{{ search_fields[i]+'header' }}").classList.remove('none')
+    {% endfor %}
+
+    console.log(selected, selected.classList)
+    selected.classList.remove("none")
+    selected.classList.remove("asc")
+    selected.classList.remove("desc")
+    console.log(selected.classList, prev_selected.classList)
+    if (prev_selected[0] === selected) {
+        selected.classList.add(prev_selected[1])
+        console.log('same')
+    } else {
+        selected.classList.add("asc")
+        console.log('different')
+    }
+
+    displayRecords(['{{ field }}', prev_selected[1]]) //re-queries the database to display the records with the same filters ordered by the chosen field
+})
+{% endfor %}
+
+//-----------------------------------------------------------------------------------
+function selectRow(selectedRow) {
+    document.querySelectorAll("#data_table_body tr.selected-row").forEach(row => row.classList.remove("selected-row")) //removes the selected-row class from any rows with it
+
+    selectedRow.classList.add("selected-row") 
 }
 
-function displayPhotos(recordId, data) {
-    console.log('displaying photos for', recordId);
+function displayPhotos(recordId, data, selectedRow) {
     const userPhoto = document.getElementById("user_photo")
     const carPhoto = document.getElementById("car_photo")
 
-    if (data.carPhoto === undefined) { //checks if there is a photo provided, if not then displays the basic no image found photo
-        console.log("No photo for car")
+    if (selectedRow.dataset.carPhoto == 'null') { //checks if there is a photo provided, if not then displays the basic no image found photo
         carPhoto.src = '/static/img/no_image_found.jpg'
     } else {
-        carPhoto.src = data.carPhoto
+        carPhoto.src = selectedRow.dataset.carPhoto
     }
 
-    if (data.userPhoto === undefined) {
-        console.log("no photo for the user was found")
+    if (selectedRow.dataset.userPhoto == 'null') {
         userPhoto.src = '/static/img/no_image_found.jpg'
     } else {
-        userPhoto.src = data.userPhoto
+        userPhoto.src = selectedRow.dataset.userPhoto
     }
 
 }

@@ -3,6 +3,5 @@ CREATE TABLE Users (SYNumber INT PRIMARY KEY,
 					LastName VarChar(20), 
 					Age INT, 
 					PhotoPath VarChar(100),
-					Address VarChar(20),
 					UserType Varchar(20)
 );
