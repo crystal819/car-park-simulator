@@ -1,0 +1,8 @@
+How to set up the program:
+
+1) install all libraries - flask and pyodbc
+2) set up an SQL server
+3) run 'CREATE DATABASE Car_Park'
+4) copy its connection string and paste it into database_setup.py in line 7 or 14 (it will run both so if one doesnt connect it will try the other)
+5) run database_setup.py
+6) run app.py and it should be runnning locally on http://127.0.0.1:5000
