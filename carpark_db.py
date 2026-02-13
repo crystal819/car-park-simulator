@@ -1,29 +1,12 @@
 import flask
 import pyodbc
 from datetime import datetime, date
+from database_setup import ConnString
 
 class CarParkDB():
     def __init__(self):
-        conn_string_sch = (
-            'Driver={SQL Server};'
-            'Server=svr-cmp-01;'
-            'Database=25svynarchT230;'
-            'Trusted_Connection=yes;'
-        )
-
-        conn_string_home = (
-            "Driver={SQL Server};"
-            "Server=localhost\\SQLEXPRESS;"
-            "Database=collyers_car_park;"
-            "Trusted_Connection=yes;"
-            "TrustServerCertificate=yes;"
-        )
-
-        try:
-            pyodbc.connect(conn_string_sch, timeout=3)
-            self.conn_string = conn_string_sch
-        except:
-            self.conn_string = conn_string_home
+        x = ConnString()
+        self.conn_string = x.connstr()
 
     def _get_connection(self):
         return pyodbc.connect(self.conn_string)
@@ -93,6 +76,8 @@ class CarParkDB():
 #------------------------car-----------------------------
         car_query = ''
         if filter_data['reg'] != '':
+            if len(filter_data['reg']) == 8: #format check
+                filter_data['reg'] = filter_data['reg'][:4]+filter_data['reg'][5:] #removes the additional space if included
             car_query += f" NumberPlate = '{filter_data['reg']}' AND"
         if filter_data['make'] != '':
             car_query += f" Make = '{filter_data['make']}' AND"
@@ -100,10 +85,10 @@ class CarParkDB():
             car_query += f" Model = '{filter_data['model']}' AND"
         
         if len(car_query) > 1:
-            car_query = 'SELECT NumberPlate, Colour, PhotoPath FROM Car WHERE' + car_query
+            car_query = 'SELECT NumberPlate, Colour, PhotoPath, Make, Model FROM Car WHERE' + car_query
             car_query = car_query[:-4]
         else:
-            car_query = 'SELECT NumberPlate, Colour, PhotoPath FROM Car'
+            car_query = 'SELECT NumberPlate, Colour, PhotoPath, Make, Model FROM Car'
 
 #--------------------------determines ordering----------------------
         if filter_data['order'] is None:
@@ -112,7 +97,7 @@ class CarParkDB():
             if filter_data['order'][1] == 'none':
                 order_query = '' #empty since there is no ordering
             elif filter_data['order'][1] == 'asc':
-                if filter_data['order'][0] in ['FirstName', 'LastName', 'Age', 'UserType', 'ValidFrom', 'ValidUntil']:
+                if filter_data['order'][0] in ['FirstName', 'LastName', 'Age', 'UserType', 'ValidFrom', 'ValidUntil', 'Make', 'Model']:
                     order_query = f' ORDER BY {filter_data['order'][0]} ASC'
                 elif filter_data['order'][0] == 'CarColour':
                     order_query = f' ORDER BY Colour ASC'
@@ -122,7 +107,7 @@ class CarParkDB():
                     order_query = f' ORDER BY HasPermit ASC'
                 
             elif filter_data['order'][1] == 'desc':
-                if filter_data['order'][0] in ['FirstName', 'LastName', 'Age', 'UserType', 'ValidFrom', 'ValidUntil']:
+                if filter_data['order'][0] in ['FirstName', 'LastName', 'Age', 'UserType', 'ValidFrom', 'ValidUntil', 'Make', 'Model']:
                     order_query = f' ORDER BY {filter_data['order'][0]} DESC'
                 elif filter_data['order'][0] == 'CarColour':
                     order_query = f' ORDER BY Colour DESC'
@@ -135,14 +120,14 @@ class CarParkDB():
                 pass
             elif filter_data['order'][0] in ['FirstName', 'LastName', 'Age', 'UserType']:
                 order_query = order_query[:10]+'u.'+order_query[10:]
-            elif filter_data['order'][0] in ['Registration', 'CarColour']:
+            elif filter_data['order'][0] in ['Registration', 'Make', 'Model', 'CarColour']:
                 order_query = order_query[:10]+'c.'+order_query[10:]
             elif filter_data['order'][0] in ['Permit', 'ValidFrom', 'ValidUntil']:
                 order_query = order_query[:10]+'p.'+order_query[10:]
  
 #----------------------------------------------------------------------execute the sql statement------------------------
         with self._get_connection() as conn:
-            sql = f"SELECT u.FirstName,u.LastName,u.Age,c.NumberPlate,c.Colour,p.HasPermit,u.UserType,p.ValidFrom,p.ValidUntil,u.PhotoPath,c.PhotoPath FROM ({user_query}) u JOIN ({permit_query}) p ON u.SYNumber = p.SYNumber JOIN ({car_query}) c ON p.NumberPlate = c.NumberPlate{order_query}"
+            sql = f"SELECT u.FirstName,u.LastName,u.Age,c.NumberPlate,c.Colour,p.HasPermit,u.UserType,p.ValidFrom,p.ValidUntil,u.PhotoPath,c.PhotoPath,c.Make,c.Model FROM ({user_query}) u JOIN ({permit_query}) p ON u.SYNumber = p.SYNumber JOIN ({car_query}) c ON p.NumberPlate = c.NumberPlate{order_query}"
             print(sql)
             rows = conn.cursor().execute(sql).fetchall()
 
@@ -160,7 +145,9 @@ class CarParkDB():
                         'valid_until': rows[i][8],
                         'user_photo': rows[i][9],
                         'car_photo': rows[i][10],
-                        'Id': i
+                        'Id': i,
+                        'make': rows[i][11],
+                        'model': rows[i][12]
             })
 
         return data
@@ -389,6 +376,7 @@ class CarParkDB():
 
     #adds new records to the database (assumes the data is already validated)
     def add_data_to_db(self, data, non_valid_data):
+        print(data)
         if data['Data'] == 'User':
             with self._get_connection() as conn:
                 sql_identity = f"SELECT * FROM Users WHERE SYNumber = {int(data['SYNumber'])} "
@@ -400,17 +388,18 @@ class CarParkDB():
                 non_valid_data['SYNumber'].append("This SYNumber has already been registered with a user")
             else:
                 if len(data['LastName']) == 0:
-                    last_name = None
+                    last_name = 'Null'
+                    sql = f"INSERT INTO Users (SYNumber, FirstName, LastName, Age, UserType) VALUES ({int(data['SYNumber'])}, '{data['FirstName']}', {last_name}, {int(data['Age'])}, '{data['UserType']}')"
                 else:
                     last_name = data['LastName']
-                sql = f"INSERT INTO Users (SYNumber, FirstName, LastName, Age, UserType) VALUES ({int(data['SYNumber'])}, {data['FirstName']}, {last_name}, {int(data['Age'])}, {data['UserType']})"
+                    sql = f"INSERT INTO Users (SYNumber, FirstName, LastName, Age, UserType) VALUES ({int(data['SYNumber'])}, '{data['FirstName']}', '{last_name}', {int(data['Age'])}, '{data['UserType']}')"
                 with self._get_connection() as conn:
-                    #print(sql)
+                    print(sql)
                     conn.cursor().execute(sql)
 
         elif data['Data'] == 'Car':
             with self._get_connection() as conn:
-                sql_identity = f"SELECT * FROM Car WHERE NumberPlate = {data['NumberPlate']}"
+                sql_identity = f"SELECT * FROM Car WHERE NumberPlate = '{data['NumberPlate']}'"
                 #runs an sql command to check if the primary key has already been taken
                 results = conn.cursor().execute(sql_identity).fetchall()
 
@@ -418,9 +407,9 @@ class CarParkDB():
                 non_valid_data['isSuccessful'] = False
                 non_valid_data['NumberPlate'].append("This car's number plate has already been registered")
             else:
-                sql = f"INSERT INTO Users (NumberPlate, Make, Model, Colour) VALUES ({data['NumberPlate']}, {data['Make']}, {data['Model']}, {data['Colour']})"
+                sql = f"INSERT INTO Car (NumberPlate, Make, Model, Colour) VALUES ('{data['NumberPlate']}', '{data['Make']}', '{data['Model']}', '{data['Colour']}')"
                 with self._get_connection() as conn:
-                    #print(sql)
+                    print(sql)
                     conn.cursor().execute(sql)
 
 
@@ -435,9 +424,9 @@ class CarParkDB():
                 non_valid_data['SYNumber'].append("This user and car already have a registered permit")
             else:
                 if data['HasPermit'] == 'Yes':
-                    permit_val = True
+                    permit_val = 1
                 else:
-                    permit_val = False
+                    permit_val = 0
 
                 if len(data['ValidFrom']) == 0:
                     valid_from = None
@@ -448,8 +437,8 @@ class CarParkDB():
                     valid_until = None
                 else:
                     valid_until = self.convert_date_to_ISO(data['ValidUntil'])
-                sql = f"INSERT INTO Users (SYNumber, NumberPlate, hasPermit, ValidFrom, ValidUntil) VALUES ({int(data['SYNumber'])}, {data['NumberPlate']}, {permit_val}, {valid_from}, {valid_until})"
+                sql = f"INSERT INTO Permit (SYNumber, NumberPlate, hasPermit, ValidFrom, ValidUntil) VALUES ({int(data['SYNumber'])}, '{data['NumberPlate']}', {permit_val}, '{valid_from}', '{valid_until}')"
                 with self._get_connection() as conn:
-                    #print(sql)
+                    print(sql)
                     conn.cursor().execute(sql)
         return non_valid_data
