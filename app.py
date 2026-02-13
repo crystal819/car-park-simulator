@@ -14,7 +14,7 @@ def index(data=None):
     return render_template('index.html',
                            car_photo='img/car_photo1.jpg',
                            user_photo='img/person_photo2.jpg',
-                           search_fields=['FirstName', 'LastName', 'Age', 'Registration', 'CarColour', 'Permit', 'UserType', 'ValidFrom', 'ValidUntil'],
+                           search_fields=['FirstName', 'LastName', 'Age', 'Registration', 'Make', 'Model', 'CarColour', 'Permit', 'UserType', 'ValidFrom', 'ValidUntil'],
                            page_url = 'index'
                            )
 
